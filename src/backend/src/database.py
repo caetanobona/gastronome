@@ -16,9 +16,9 @@ DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NA
 
 engine = create_engine(DATABASE_URL, echo=True)
 
-def create_db_and_tables():
+def create_tables():
     print('creating database')
     SQLModel.metadata.create_all(engine)
 
 if __name__ == "__main__":
-    create_db_and_tables()
+    create_tables()

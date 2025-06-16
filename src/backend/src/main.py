@@ -3,7 +3,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from database import create_db_and_tables
+from database import create_tables
 from src.routers import recipes
 
 app = FastAPI(
@@ -25,5 +25,5 @@ app.add_middleware(
 app.include_router(recipes.router, tags=["recipes"])
 
 if __name__ == "__main__":
-    create_db_and_tables()
+    create_tables()
     uvicorn.run("main:app")
