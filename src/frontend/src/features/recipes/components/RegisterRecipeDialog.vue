@@ -38,6 +38,11 @@ const onSubmit = form.handleSubmit((values) => {
   })
 })
 
+const handleCancel = () => {
+  form.resetForm()
+  open.value = false
+}
+
 </script>
 
 <template>
@@ -144,6 +149,7 @@ const onSubmit = form.handleSubmit((values) => {
             variant="ghost"
             class="rounded-none cursor-pointer border border-white hover:border-gray-950 hover:border"
             type="reset"
+            @click="handleCancel"
           >
             Cancel
           </Button>
