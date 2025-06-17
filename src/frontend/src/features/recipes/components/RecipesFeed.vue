@@ -8,6 +8,9 @@ import z from 'zod'
 
 import RegisterRecipeDialog from '@/features/recipes/components/RegisterRecipeDialog.vue'
 import { Select, SelectTrigger } from '@/components/ui/select'
+import { useSearchQuery } from '@/composables/useSearch'
+
+const { searchQuery } = useSearchQuery()
 
 const recipes = ref<Recipe[]>([])
 
@@ -30,7 +33,12 @@ watch(
   { immediate: true },
 )
 
-const recipeCount = computed(() => recipes.value.length)
+const filteredRecipes = computed(() => {
+  const searchTerm = searchQuery.value.toLowerCase()
+  return recipes.value.filter(recipe => recipe.title.toLowerCase().includes(searchTerm))
+})
+
+const recipeCount = computed(() => filteredRecipes.value.length)
 </script>
 
 <template>
@@ -59,7 +67,7 @@ const recipeCount = computed(() => recipes.value.length)
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
       <RecipeCard
-        v-for="recipe in recipes"
+        v-for="recipe in filteredRecipes"
         :key="recipe.title"
         :title="recipe.title"
         :description="recipe.description"

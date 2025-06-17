@@ -1,5 +1,14 @@
 <script setup lang="ts">
 import Input from '@/components/ui/input/Input.vue'
+import { useSearchQuery } from '@/composables/useSearch';
+import { computed } from 'vue';
+
+const { searchQuery } = useSearchQuery()
+
+const search = computed({
+  get: () => searchQuery.value,
+  set: (value : string) => { searchQuery.value = value }
+})
 </script>
 
 <template>
@@ -11,7 +20,11 @@ import Input from '@/components/ui/input/Input.vue'
         </div>
         <div class="py-2">
           <div class="w-80">
-            <Input class="bg-white rounded-none" placeholder="Search"/>
+            <Input 
+              class="bg-white rounded-none" 
+              placeholder="Search"
+              v-model="search"
+            />
           </div>
         </div>
         <div class="">
