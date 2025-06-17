@@ -95,7 +95,7 @@ Antes de começar, você vai precisar ter instalado na sua máquina:
         *   Crie um arquivo `.env` na pasta `src/frontend/` com as seguintes variáveis:  
   
             ```  
-            FAST_API_URL=http://127.0.0.1:8000
+            VITE_FAST_API_URL=http://127.0.0.1:8000
             ```  
   
             *   Ajuste a URL da API para corresponder ao endereço do seu backend.  
