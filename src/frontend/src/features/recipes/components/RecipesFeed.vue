@@ -4,7 +4,9 @@ import { useGetRecipes } from '../api/use-get-recipes';
 import { computed, ref, watch } from 'vue';
 import { RecipeSchema } from '../schemas';
 import type { Recipe } from '../types';
-import z from 'zod/v4';
+import z from 'zod';
+
+import RegisterRecipeDialog from '@/features/recipes/components/RegisterRecipeDialog.vue'
 
 const recipes = ref<Recipe[]>([])
 
@@ -32,6 +34,10 @@ const recipeCount = computed(() => recipes.value.length)
       <div class="items-center">
         <h1 class="text-2xl font-light text-gray-900 pb-2">Latest Recipes</h1>
         <p class="text-sm text-gray-500">{{ recipeCount }} {{ recipeCount > 1 ? 'recipes' : 'recipe' }}</p>
+      </div>
+
+      <div>
+        <RegisterRecipeDialog />
       </div>
       
       <div>

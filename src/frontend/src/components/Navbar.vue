@@ -11,7 +11,7 @@ import Input from '@/components/ui/input/Input.vue'
         </div>
         <div class="py-2">
           <div class="w-80">
-            <Input class="bg-gray-100" placeholder="Search"/>
+            <Input class="bg-white rounded-none" placeholder="Search"/>
           </div>
         </div>
         <div class="">
