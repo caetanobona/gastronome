@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Navbar from "@/components/Navbar.vue"
-import RecipesFeed from "@/features/recipes/components/RecipesFeed.vue"
+import RecipesFeed from "./features/recipes/components/RecipesFeed.vue";
+
 </script>
 
 <template>
