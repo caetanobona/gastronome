@@ -9,43 +9,53 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { AddRecipeFormSchema } from '../schemas'
+import { CreateRecipeFormSchema } from '../schemas'
+import { useCreateRecipe } from '../api/use-create-recipe'
+import { ref } from 'vue'
+
+const open = ref(false)
+
+const { mutate } = useCreateRecipe()
 
 const form = useForm({
-  validationSchema: AddRecipeFormSchema,
+  validationSchema: CreateRecipeFormSchema,
 })
 
 const onSubmit = form.handleSubmit((values) => {
-  console.log('Form submitted!', values)
+  const finalValues = {
+    ...values,
+    tag : values.tag == undefined ? null : values.tag
+  }
+
+  mutate(finalValues, {
+    onSuccess: () => {
+      open.value = false
+      form.resetForm()
+    }
+  })
 })
+
 </script>
 
 <template>
-  <Dialog>
+  <Dialog v-model:open="open">
     <DialogTrigger asChild>
       <Button
-        class="rounded-none cursor-pointer hover:text-gray-950 hover:bg-white hover:border-gray-950 hover:border"
+        class="rounded-none cursor-pointer border border-white hover:text-gray-950 hover:bg-white hover:border-gray-950"
       >
         Add Recipe
       </Button>
     </DialogTrigger>
     <DialogContent>
-      <DialogHeader>
-        <DialogTitle> Add a new recipe </DialogTitle>
-        <DialogDescription> Form for adding a new recipe </DialogDescription>
-      </DialogHeader>
-
       <form @submit="onSubmit">
+        <DialogHeader>
+          <DialogTitle> Add a new recipe </DialogTitle>
+          <DialogDescription> Form for adding a new recipe </DialogDescription>
+        </DialogHeader>
+
         <div class="pb-4">
           <FormField v-slot="{ componentField }" name="title">
             <FormItem>
@@ -97,7 +107,9 @@ const onSubmit = form.handleSubmit((values) => {
         <div class="pb-4">
           <FormField v-slot="{ componentField }" name="prepTime">
             <FormItem>
-              <FormLabel>Preparation Time <span class="text-gray-500 text-xs">(in minutes)</span></FormLabel>
+              <FormLabel
+                >Preparation Time <span class="text-gray-500 text-xs">(in minutes)</span></FormLabel
+              >
               <FormControl>
                 <Input
                   type="number"
@@ -126,21 +138,23 @@ const onSubmit = form.handleSubmit((values) => {
             </FormItem>
           </FormField>
         </div>
-      </form>
 
-      <DialogFooter>
-        <Button
-          variant="ghost"
-          class="rounded-none cursor-pointer border border-white hover:border-gray-950 hover:border"
-        >
-          Cancel
-        </Button>
-        <Button
-          class="rounded-none cursor-pointer border border-white hover:text-gray-950 hover:bg-white hover:border-gray-950"
-        >
-          Save
-        </Button>
-      </DialogFooter>
+        <DialogFooter>
+          <Button
+            variant="ghost"
+            class="rounded-none cursor-pointer border border-white hover:border-gray-950 hover:border"
+            type="reset"
+          >
+            Cancel
+          </Button>
+          <Button
+            class="rounded-none cursor-pointer border border-white hover:text-gray-950 hover:bg-white hover:border-gray-950"
+            type="submit"
+          >
+            Save
+          </Button>
+        </DialogFooter>
+      </form>
     </DialogContent>
   </Dialog>
 </template>

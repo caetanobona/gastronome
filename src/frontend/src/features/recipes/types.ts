@@ -3,5 +3,5 @@ export interface Recipe {
   description : string
   author : string
   prepTime : number
-  tag? : string
+  tag? : string | null
 }

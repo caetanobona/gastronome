@@ -4,4 +4,4 @@ class Recipe(BaseModel):
   description: str
   author: str
   prepTime: int
-  tag: str | None
+  tag: str | None = None
