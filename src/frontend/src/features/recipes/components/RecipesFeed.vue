@@ -1,12 +1,29 @@
 <script setup lang="ts">
 import RecipeCard from '@/features/recipes/components/RecipeCard.vue'
-import { ref } from 'vue';
-import { useQuery } from '@tanstack/vue-query';
-import axios from 'axios';
 import { useGetRecipes } from '../api/use-get-recipes';
+import { computed, ref, watch } from 'vue';
+import { RecipeSchema } from '../schemas';
+import type { Recipe } from '../types';
+import z from 'zod/v4';
+
+const recipes = ref<Recipe[]>([])
 
 const { isPending, isError, data, error, } = useGetRecipes();
 
+watch(data, (newData) => {
+  if(newData) {
+    try {
+      recipes.value = z.array(RecipeSchema).parse(newData)
+    } catch(error) {
+      console.error('Failed to parse recipes:', error)
+      recipes.value = []; 
+    }
+  } else {
+    recipes.value = []
+  }
+}, {immediate : true})
+
+const recipeCount = computed(() => recipes.value.length)
 </script>
 
 <template>
@@ -14,7 +31,7 @@ const { isPending, isError, data, error, } = useGetRecipes();
     <div class="flex items-center justify-between pb-12">
       <div class="items-center">
         <h1 class="text-2xl font-light text-gray-900 pb-2">Latest Recipes</h1>
-        <p class="text-sm text-gray-500">{{ data.length }} {{ data.length > 1 ? 'recipes' : 'recipe' }}</p>
+        <p class="text-sm text-gray-500">{{ recipeCount }} {{ recipeCount > 1 ? 'recipes' : 'recipe' }}</p>
       </div>
       
       <div>
@@ -27,8 +44,8 @@ const { isPending, isError, data, error, } = useGetRecipes();
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
       <RecipeCard 
-        v-for="recipe in data"
-        :key="recipe.tag"
+        v-for="recipe in recipes"
+        :key="recipe.title"
         :title="recipe.title"
         :description="recipe.description"
         :author="recipe.author"
