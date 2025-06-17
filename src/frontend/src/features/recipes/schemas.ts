@@ -5,5 +5,5 @@ export const RecipeSchema = z.object({
   description : z.string(),
   author : z.string(),
   prepTime : z.number(),
-  tag : z.string().optional().nullable()
+  tag : z.string().optional()
 })
