@@ -2,7 +2,6 @@ from src.models.recipe import Recipe as RecipeModel
 from src.schemas.recipe import Recipe as RecipeSchema
 from fastapi import HTTPException
 from sqlmodel import Session, select
-from src.dependencies import SessionDep
 
 def get_all_recipes(session : Session):
     recipes = session.exec(select(RecipeModel)).all()
