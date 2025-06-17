@@ -1,7 +1,7 @@
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, Query
-from schemas.recipe import Recipe as RecipeSchema
-from services.recipes_service import get_all_recipes, get_recipe_by_id, insert_recipe
+from src.schemas.recipe import Recipe as RecipeSchema
+from src.services.recipes_service import get_all_recipes, get_recipe_by_id, insert_recipe, delete_recipe_by_id, update_recipe_by_id
 from src.dependencies import SessionDep
 
 router = APIRouter(
@@ -16,14 +16,20 @@ def get_recipes(session : SessionDep):
 
 @router.get("/{recipe_id}")
 def get_recipe(recipe_id : int, session : SessionDep):
-  if recipe_id < 0:
-    raise HTTPException(status_code=400, detail="Recipe id must be greater than 0")
   recipe = get_recipe_by_id(recipe_id, session)
-  if not recipe:
-    raise HTTPException(status_code=404, detail="Recipe not found")
   return recipe
 
 @router.post("/")
 def post_recipe(recipe : RecipeSchema, session : SessionDep):
   recipe = insert_recipe(recipe, session)
   return recipe
+
+@router.delete("/{recipe_id}", status_code=204)
+def delete_recipe(recipe_id : int, session : SessionDep):
+  delete_recipe_by_id(recipe_id, session)
+  return # 204 response
+
+@router.put("/{recipe_id}")
+def put_recipe(recipe_id : int, new_recipe : RecipeSchema, session : SessionDep):
+  updated_recipe = update_recipe_by_id(recipe_id, new_recipe, session)
+  return updated_recipe

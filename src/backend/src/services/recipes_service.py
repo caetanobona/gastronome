@@ -1,5 +1,6 @@
 from src.models.recipe import Recipe as RecipeModel
 from src.schemas.recipe import Recipe as RecipeSchema
+from fastapi import HTTPException
 from sqlmodel import Session, select
 from src.dependencies import SessionDep
 
@@ -8,8 +9,21 @@ def get_all_recipes(session : Session):
     return recipes
 
 def get_recipe_by_id(recipe_id : int, session : Session) -> RecipeSchema | None:
-    recipe = session.exec(select(RecipeModel)).first() # TODO -> IMPLEMENT FILTER LOGIC
-    return recipe
+    if recipe_id < 0:
+        raise HTTPException(status_code=400, detail="Recipe id must be greater than 0")
+    recipe = session.get(RecipeModel, recipe_id)
+    if not recipe:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+
+    recipe_schema = RecipeSchema(
+        title=recipe.title,
+        description=recipe.description,
+        author=recipe.author,
+        prepTime=recipe.prepTime,
+        tag=recipe.tag,
+    )
+
+    return recipe_schema
 
 def insert_recipe(recipe: RecipeSchema, session : Session) -> RecipeSchema:
     recipe_model = RecipeModel(
@@ -22,6 +36,38 @@ def insert_recipe(recipe: RecipeSchema, session : Session) -> RecipeSchema:
 
     session.add(recipe_model)
     session.commit()
-    session.refresh(recipe_model) # needed to generate the id in the database
+    session.refresh(recipe_model) # generates the id in the database
+
+    return recipe
+
+def delete_recipe_by_id(recipe_id : int, session : Session):
+    if recipe_id < 0:
+        raise HTTPException(status_code=400, detail="Recipe id must be greater than 0")
+
+    recipe = session.get(RecipeModel, recipe_id)
+    if not recipe:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+
+    session.delete(recipe)
+    session.commit()
+
+    return None
+
+def update_recipe_by_id(recipe_id : int, new_recipe : RecipeSchema, session : Session):
+    if recipe_id < 0:
+        raise HTTPException(status_code=400, detail="Recipe id must be greater than 0")
+
+    recipe = session.get(RecipeModel, recipe_id)
+    if not recipe:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+
+    recipe.title = new_recipe.title
+    recipe.description = new_recipe.description
+    recipe.author = new_recipe.author
+    recipe.prepTime = new_recipe.prepTime
+    recipe.tag = new_recipe.tag
+
+    session.commit()
+    session.refresh(recipe)
 
     return recipe
