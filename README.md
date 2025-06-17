@@ -14,8 +14,8 @@ O GastronoMe oferece uma experiência intuitiva e agradável para os amantes da 
 *   **ORM:** SQLMOdel
 
 ## Funcionalidades  
-  
-*   Cadastro e login de usuários  
+
+*   Criação de receitas com formulário responsivo
 *   Visualização detalhada de receitas
 *   Busca de receitas por nome
 *   Interface responsiva e minimalista
