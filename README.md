@@ -104,10 +104,10 @@ Antes de começar, você vai precisar ter instalado na sua máquina:
   
 1.  **Backend (FastAPI):**  
   
-    *   Navegue até a pasta `src/backend/`:  
+    *   Navegue até a pasta `src/backend/src`:  
   
         ```bash  
-        cd src/backend  
+        cd src/backend/src
         ```  
   
     *   Execute o servidor FastAPI:  
