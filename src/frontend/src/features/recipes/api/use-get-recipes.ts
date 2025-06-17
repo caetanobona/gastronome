@@ -3,8 +3,6 @@ import axios from "axios"
 import { RecipeSchema } from "../schemas"
 import z from "zod/v4"
 
-const RecipesArraySchema = z.array(RecipeSchema)
-
 export const useGetRecipes = () => {
   const query = useQuery({
     queryKey : ['recipes'],
@@ -14,10 +12,8 @@ export const useGetRecipes = () => {
       if(response.data == null) {
         throw new Error("Failed to fetch recipes")
       }
-
-      const parsedResponse = RecipesArraySchema.parse(response.data)
-
-      return parsedResponse
+      
+      return response.data
     }
   })
 
