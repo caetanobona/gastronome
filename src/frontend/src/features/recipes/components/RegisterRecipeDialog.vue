@@ -14,14 +14,46 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CreateRecipeFormSchema } from '../schemas'
 import { useCreateRecipe } from '../api/use-create-recipe'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import type { Recipe } from '../types'
 
-const open = ref(false)
+const props = withDefaults(defineProps<{
+  open?: boolean | undefined,
+  recipe?: Recipe,
+  hideTrigger?: boolean
+}>(), {
+  open: undefined
+})
+
+console.log(`props.open, props.recipe, props.hideTrigger: ${props.open} ${props.recipe} ${props.hideTrigger}`)
+
+const internalOpen = ref(false)
+
+const emit = defineEmits<{  
+  'update:open': [value: boolean]  
+}>()
+
+const isOpenProp = ():boolean => {
+  console.log(`isOpenProp: ${'open' in props ? true : false}`)
+  return 'open' in props ? true : false
+}
+
+const isOpen = computed({  
+  get: () => isOpenProp() ? props.open : internalOpen.value,  
+  set: (value : boolean) => isOpenProp() ? emit('update:open', value) : internalOpen.value = value
+})
 
 const { mutate } = useCreateRecipe()
 
 const form = useForm({
   validationSchema: CreateRecipeFormSchema,
+  initialValues: {
+    title: props.recipe?.title || '',  
+    description: props.recipe?.description || '',  
+    author: props.recipe?.author || '',  
+    prepTime: props.recipe?.prepTime || 0,  
+    tag: props.recipe?.tag || '',
+  }
 })
 
 const onSubmit = form.handleSubmit((values) => {
@@ -32,22 +64,21 @@ const onSubmit = form.handleSubmit((values) => {
 
   mutate(finalValues, {
     onSuccess: () => {
-      open.value = false
+      isOpen.value = false
       form.resetForm()
     }
   })
 })
 
 const handleCancel = () => {
-  form.resetForm()
-  open.value = false
+  isOpen.value = false
 }
 
 </script>
 
 <template>
-  <Dialog v-model:open="open">
-    <DialogTrigger asChild>
+  <Dialog v-model:open="isOpen">
+    <DialogTrigger v-if="!hideTrigger" asChild>
       <Button
         class="rounded-none cursor-pointer border border-white hover:text-gray-950 hover:bg-white hover:border-gray-950"
       >
@@ -56,9 +87,8 @@ const handleCancel = () => {
     </DialogTrigger>
     <DialogContent>
       <form @submit="onSubmit">
-        <DialogHeader>
+        <DialogHeader class="pb-6">
           <DialogTitle> Add a new recipe </DialogTitle>
-          <DialogDescription> Form for adding a new recipe </DialogDescription>
         </DialogHeader>
 
         <div class="pb-4">
@@ -68,7 +98,7 @@ const handleCancel = () => {
               <FormControl>
                 <Input
                   type="text"
-                  placeholder="Recipe Title"
+                  placeholder="Title"
                   v-bind="componentField"
                   class="rounded-none"
                 />
@@ -84,7 +114,7 @@ const handleCancel = () => {
               <FormControl>
                 <Input
                   type="text"
-                  placeholder="Recipe Description"
+                  placeholder="Description"
                   v-bind="componentField"
                   class="rounded-none"
                 />
@@ -100,7 +130,7 @@ const handleCancel = () => {
               <FormControl>
                 <Input
                   type="text"
-                  placeholder="Recipe Author"
+                  placeholder="Author"
                   v-bind="componentField"
                   class="rounded-none"
                 />
@@ -113,12 +143,12 @@ const handleCancel = () => {
           <FormField v-slot="{ componentField }" name="prepTime">
             <FormItem>
               <FormLabel
-                >Preparation Time <span class="text-gray-500 text-xs">(in minutes)</span></FormLabel
+                >Preparation Time <span class="text-gray-400 text-xs">(in minutes)</span></FormLabel
               >
               <FormControl>
                 <Input
                   type="number"
-                  placeholder="Recipe Preparation Time in Minutes"
+                  placeholder="Preparation Time in Minutes"
                   v-bind="componentField"
                   class="rounded-none"
                 />
@@ -130,7 +160,7 @@ const handleCancel = () => {
         <div class="pb-4">
           <FormField v-slot="{ componentField }" name="tag">
             <FormItem>
-              <FormLabel>Tag <span class="text-gray-500 text-xs">optional</span></FormLabel>
+              <FormLabel>Tag <span class="text-gray-400 text-xs">optional</span></FormLabel>
               <FormControl>
                 <Input
                   type="text"

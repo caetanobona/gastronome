@@ -73,6 +73,7 @@ const recipeCount = computed(() => filteredRecipes.value.length)
         :description="recipe.description"
         :author="recipe.author"
         :tag="recipe.tag"
+        :prep-time="recipe.prepTime"
       />
     </div>
   </div>
