@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CreateRecipeFormSchema } from '../schemas'
 import { useCreateRecipe } from '../api/use-create-recipe'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { Recipe } from '../types'
 
 const props = withDefaults(defineProps<{
@@ -25,8 +25,6 @@ const props = withDefaults(defineProps<{
   open: undefined
 })
 
-console.log(`props.open, props.recipe, props.hideTrigger: ${props.open} ${props.recipe} ${props.hideTrigger}`)
-
 const internalOpen = ref(false)
 
 const emit = defineEmits<{  
@@ -34,7 +32,6 @@ const emit = defineEmits<{
 }>()
 
 const isOpenProp = ():boolean => {
-  console.log(`isOpenProp: ${'open' in props ? true : false}`)
   return 'open' in props ? true : false
 }
 
@@ -45,14 +42,26 @@ const isOpen = computed({
 
 const { mutate } = useCreateRecipe()
 
+const getFormValuesFromProps = () => ({
+  title: props.recipe?.title || '',  
+  description: props.recipe?.description || '',  
+  author: props.recipe?.author || '',  
+  prepTime: props.recipe?.prepTime || 0,  
+  tag: props.recipe?.tag || '',
+})
+
 const form = useForm({
   validationSchema: CreateRecipeFormSchema,
-  initialValues: {
-    title: props.recipe?.title || '',  
-    description: props.recipe?.description || '',  
-    author: props.recipe?.author || '',  
-    prepTime: props.recipe?.prepTime || 0,  
-    tag: props.recipe?.tag || '',
+  initialValues: getFormValuesFromProps()
+})
+
+watch(isOpen, (open) => {
+  if (open) {
+    form.resetForm({
+      values: getFormValuesFromProps()
+    })
+  } else {
+    form.resetForm()
   }
 })
 
