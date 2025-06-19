@@ -31,13 +31,23 @@ const emit = defineEmits<{
   'update:open': [value: boolean]  
 }>()
 
-const isOpenProp = ():boolean => {
-  return 'open' in props ? true : false
+const isControlled = ():boolean => {
+  return props.open !== undefined
 }
 
 const isOpen = computed({  
-  get: () => isOpenProp() ? props.open : internalOpen.value,  
-  set: (value : boolean) => isOpenProp() ? emit('update:open', value) : internalOpen.value = value
+  get: () => isControlled() ? props.open : internalOpen.value,  
+  set: (value : boolean) => isControlled() ? emit('update:open', value) : internalOpen.value = value
+})
+
+watch(isOpen, (open) => {
+  if (open) {
+    form.resetForm({
+      values: getFormValuesFromProps()
+    })
+  } else {
+    form.resetForm()
+  }
 })
 
 const { mutate } = useCreateRecipe()
@@ -55,16 +65,6 @@ const form = useForm({
   initialValues: getFormValuesFromProps()
 })
 
-watch(isOpen, (open) => {
-  if (open) {
-    form.resetForm({
-      values: getFormValuesFromProps()
-    })
-  } else {
-    form.resetForm()
-  }
-})
-
 const onSubmit = form.handleSubmit((values) => {
   const finalValues = {
     ...values,
@@ -77,6 +77,8 @@ const onSubmit = form.handleSubmit((values) => {
       form.resetForm()
     }
   })
+
+  isOpen.value = false
 })
 
 const handleCancel = () => {
