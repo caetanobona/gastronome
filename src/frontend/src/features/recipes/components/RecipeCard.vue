@@ -68,7 +68,6 @@ const setEditModalOpen = () => {
       v-model:open="editModalOpen" 
       :recipe="props" 
       :hideTrigger="true" 
-      @update:open="editModalOpen = $event"
     />
   </Card>
 </template>
