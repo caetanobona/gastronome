@@ -12,79 +12,90 @@ import {
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { CreateRecipeFormSchema } from '../schemas'
+import { TypedCreateRecipeFormSchema } from '../schemas'
 import { useCreateRecipe } from '../api/use-create-recipe'
 import { ref, computed, watch } from 'vue'
-import type { Recipe } from '../types'
+import { useEditRecipe } from '../api/use-edit-recipe'
+import type { RecipeVue } from '../types'
 
-const props = withDefaults(defineProps<{
-  open?: boolean | undefined,
-  recipe?: Recipe,
-  hideTrigger?: boolean
-}>(), {
-  open: undefined
-})
+const props = withDefaults(
+  defineProps<{
+    open?: boolean | undefined
+    recipe?: RecipeVue
+    hideTrigger?: boolean
+    edit?: boolean
+  }>(),
+  {
+    open: undefined,
+  },
+)
 
 const internalOpen = ref(false)
 
-const emit = defineEmits<{  
-  'update:open': [value: boolean]  
+const emit = defineEmits<{
+  'update:open': [value: boolean]
 }>()
 
-const isControlled = ():boolean => {
+const isControlled = (): boolean => {
   return props.open !== undefined
 }
 
-const isOpen = computed({  
-  get: () => isControlled() ? props.open : internalOpen.value,  
-  set: (value : boolean) => isControlled() ? emit('update:open', value) : internalOpen.value = value
+const isOpen = computed({
+  get: () => (isControlled() ? props.open : internalOpen.value),
+  set: (value: boolean) =>
+    isControlled() ? emit('update:open', value) : (internalOpen.value = value),
 })
+
+const createMutation = useCreateRecipe()
+const editMutation = useEditRecipe()
 
 watch(isOpen, (open) => {
   if (open) {
     form.resetForm({
-      values: getFormValuesFromProps()
+      values: getFormValuesFromProps(),
     })
   } else {
     form.resetForm()
   }
 })
 
-const { mutate } = useCreateRecipe()
-
 const getFormValuesFromProps = () => ({
-  title: props.recipe?.title || '',  
-  description: props.recipe?.description || '',  
-  author: props.recipe?.author || '',  
-  prepTime: props.recipe?.prepTime || 0,  
+  title: props.recipe?.title || '',
+  description: props.recipe?.description || '',
+  author: props.recipe?.author || '',
+  prepTime: props.recipe?.prepTime || 0,
   tag: props.recipe?.tag || '',
 })
 
 const form = useForm({
-  validationSchema: CreateRecipeFormSchema,
-  initialValues: getFormValuesFromProps()
+  validationSchema: TypedCreateRecipeFormSchema,
+  initialValues: getFormValuesFromProps(),
 })
 
-const onSubmit = form.handleSubmit((values) => {
+const onSubmit = form.handleSubmit(async (values) => {
   const finalValues = {
     ...values,
-    tag : values.tag == undefined ? null : values.tag
+    tag: values.tag || null,
   }
 
-  mutate(finalValues, {
+  const mutationOptions = {
     onSuccess: () => {
       isOpen.value = false
       form.resetForm()
     }
-  })
+  }
 
-  isOpen.value = false
+  if (props.edit && props.recipe?.id) {
+    const valuesWithId = { ...finalValues, id: props.recipe.id }
+    editMutation.mutate(valuesWithId, mutationOptions)
+  } else {
+    createMutation.mutate(finalValues, mutationOptions)
+  }
 })
 
 const handleCancel = () => {
   isOpen.value = false
 }
-
 </script>
 
 <template>
@@ -99,7 +110,7 @@ const handleCancel = () => {
     <DialogContent>
       <form @submit="onSubmit">
         <DialogHeader class="pb-6">
-          <DialogTitle> Add a new recipe </DialogTitle>
+          <DialogTitle> {{ props.edit ? 'Edit Recipe' : 'Add a new Recipe' }} </DialogTitle>
         </DialogHeader>
 
         <div class="pb-4">

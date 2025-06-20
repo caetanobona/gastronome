@@ -9,13 +9,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import RegisterRecipeDialog from './RegisterRecipeDialog.vue'
+import RecipeDialogForm from './RecipeDialogForm.vue'
 import { ref } from 'vue'
-import type { Recipe } from '../types'
+import type { RecipeVue } from '../types'
+import { useDeleteRecipe } from '../api/use-delete-recipe'
 
-const props = defineProps<Recipe>()
+const props = defineProps<RecipeVue>()
 
 const editModalOpen = ref(false)
+
+const deleteMutation = useDeleteRecipe()
+
+const handleDelete = () => {
+  deleteMutation.mutate(props.id)
+}
 
 const setEditModalOpen = () => {
   editModalOpen.value = !editModalOpen.value
@@ -47,7 +54,9 @@ const setEditModalOpen = () => {
             <DropdownMenuItem class="rounded-none" @click="setEditModalOpen">
               Edit
             </DropdownMenuItem>
-            <DropdownMenuItem class="rounded-none">Delete</DropdownMenuItem>
+            <DropdownMenuItem class="rounded-none" @click="handleDelete">
+              Delete
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -64,10 +73,11 @@ const setEditModalOpen = () => {
       </div>
     </div>
 
-    <RegisterRecipeDialog 
+    <RecipeDialogForm 
       v-model:open="editModalOpen" 
       :recipe="props" 
       :hideTrigger="true" 
+      :edit="true" 
     />
   </Card>
 </template>

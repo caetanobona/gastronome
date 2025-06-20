@@ -2,36 +2,22 @@
 import RecipeCard from '@/features/recipes/components/RecipeCard.vue'
 import { useGetRecipes } from '../api/use-get-recipes'
 import { computed, ref, watch } from 'vue'
-import { RecipeSchema } from '../schemas'
-import type { Recipe } from '../types'
-import z from 'zod'
-
-import RegisterRecipeDialog from '@/features/recipes/components/RegisterRecipeDialog.vue'
+import type { RecipeVue } from '../types'
+import RecipeDialogForm from '@/features/recipes/components/RecipeDialogForm.vue'
 import { Select, SelectTrigger } from '@/components/ui/select'
 import { useSearchQuery } from '@/composables/useSearch'
 
 const { searchQuery } = useSearchQuery()
 
-const recipes = ref<Recipe[]>([])
+const recipes = ref<RecipeVue[]>([])
 
 const { isPending, isError, data, error } = useGetRecipes()
 
-watch(
-  data,
-  (newData) => {
-    if (newData) {
-      try {
-        recipes.value = z.array(RecipeSchema).parse(newData)
-      } catch (error) {
-        console.error('Failed to parse recipes:', error)
-        recipes.value = []
-      }
-    } else {
-      recipes.value = []
-    }
-  },
-  { immediate: true },
-)
+watch(data, (newData) => {
+  if (newData) {
+    recipes.value = newData
+  }
+})
 
 const filteredRecipes = computed(() => {
   const searchTerm = searchQuery.value.toLowerCase()
@@ -56,7 +42,7 @@ const recipeCount = computed(() => filteredRecipes.value.length)
           <SelectTrigger class="rounded-none"> Filter by </SelectTrigger>
         </Select>
         <div class="pl-2">
-          <RegisterRecipeDialog />
+          <RecipeDialogForm />
         </div>
       </div>
     </div>
@@ -68,7 +54,8 @@ const recipeCount = computed(() => filteredRecipes.value.length)
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
       <RecipeCard
         v-for="recipe in filteredRecipes"
-        :key="recipe.title"
+        :key="recipe.id"
+        :id="recipe.id"
         :title="recipe.title"
         :description="recipe.description"
         :author="recipe.author"
