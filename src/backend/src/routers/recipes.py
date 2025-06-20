@@ -1,6 +1,6 @@
 
 from fastapi import APIRouter
-from src.schemas.recipe import Recipe as RecipeSchema
+from src.schemas.recipe import Recipe as RecipeSchema, EditRecipe as EditRecipeSchema
 from src.services.recipes_service import get_all_recipes, get_recipe_by_id, insert_recipe, delete_recipe_by_id, update_recipe_by_id
 from src.dependencies import SessionDep
 
@@ -30,6 +30,6 @@ def delete_recipe(recipe_id : int, session : SessionDep):
   return # 204 response
 
 @router.put("/{recipe_id}")
-def put_recipe(recipe_id : int, new_recipe : RecipeSchema, session : SessionDep):
-  updated_recipe = update_recipe_by_id(recipe_id, new_recipe, session)
+def put_recipe(recipe_id : int, edited_recipe : EditRecipeSchema, session : SessionDep):
+  updated_recipe = update_recipe_by_id(recipe_id, edited_recipe, session)
   return updated_recipe

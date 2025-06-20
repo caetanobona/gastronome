@@ -1,5 +1,5 @@
 from src.models.recipe import Recipe as RecipeModel
-from src.schemas.recipe import Recipe as RecipeSchema
+from src.schemas.recipe import Recipe as RecipeSchema, EditRecipe as EditRecipeSchema
 from fastapi import HTTPException
 from sqlmodel import Session, select
 
@@ -52,7 +52,7 @@ def delete_recipe_by_id(recipe_id : int, session : Session):
 
     return None
 
-def update_recipe_by_id(recipe_id : int, new_recipe : RecipeSchema, session : Session):
+def update_recipe_by_id(recipe_id : int, edited_recipe : EditRecipeSchema, session : Session):
     if recipe_id < 0:
         raise HTTPException(status_code=400, detail="Recipe id must be greater than 0")
 
@@ -60,11 +60,11 @@ def update_recipe_by_id(recipe_id : int, new_recipe : RecipeSchema, session : Se
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
 
-    recipe.title = new_recipe.title
-    recipe.description = new_recipe.description
-    recipe.author = new_recipe.author
-    recipe.prepTime = new_recipe.prepTime
-    recipe.tag = new_recipe.tag
+    recipe.title = edited_recipe.title
+    recipe.description = edited_recipe.description
+    recipe.author = edited_recipe.author
+    recipe.prepTime = edited_recipe.prepTime
+    recipe.tag = edited_recipe.tag
 
     session.commit()
     session.refresh(recipe)
