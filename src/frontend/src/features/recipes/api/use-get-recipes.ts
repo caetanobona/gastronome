@@ -1,6 +1,8 @@
 import { FAST_API_URL } from "@/config"
 import { useQuery } from "@tanstack/vue-query"
 import axios from "axios"
+import { RecipeSchema } from "../schemas"
+import z from "zod"
 
 export const useGetRecipes = () => {
   const query = useQuery({
@@ -13,8 +15,10 @@ export const useGetRecipes = () => {
       if(response.data == null) {
         throw new Error("Failed to fetch recipes")
       }
+
+      const parsedResponse = z.array(RecipeSchema).parse(response.data)
       
-      return response.data
+      return parsedResponse;
     }
   })
 
